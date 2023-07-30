@@ -1,13 +1,15 @@
 import React, { useState } from "react"
 import { RolllStateType } from "shared/models/roll"
+import { Person } from "shared/models/person"
 import { RollStateIcon } from "staff-app/components/roll-state/roll-state-icon.component"
 
 interface Props {
   initialState?: RolllStateType
   size?: number
-  onStateChange?: (newState: RolllStateType) => void
+  onStateChange?: (newState: RolllStateType, id: number) => void
+  student: Person
 }
-export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", size = 40, onStateChange }) => {
+export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", size = 40, onStateChange, student }) => {
   const [rollState, setRollState] = useState(initialState)
 
   const nextState = () => {
@@ -21,7 +23,7 @@ export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", si
     const next = nextState()
     setRollState(next)
     if (onStateChange) {
-      onStateChange(next)
+      onStateChange(next, student.id)
     }
   }
 

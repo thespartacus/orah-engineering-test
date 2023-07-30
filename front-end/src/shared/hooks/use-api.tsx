@@ -1,6 +1,7 @@
-import { useReducer, useCallback } from "react"
+import React, { useReducer, useCallback, createContext, useContext } from "react"
 import { ApiResponse, ResponseError } from "shared/interfaces/http.interface"
 import { RollInput } from "shared/models/roll"
+import {  Person } from "shared/models/person"
 import { getHomeboardStudents } from "api/get-homeboard-students"
 import { getActivities } from "api/get-activities"
 import { saveActiveRoll } from "api/save-active-roll"
@@ -35,7 +36,7 @@ export function useApi<ReturnType = {}>({ url, initialLoadState = "loading" }: O
     [url]
   )
 
-  return [callApi, state.data, state.loadState, state.error] as const
+  return [state, dispatch, callApi] as const
 }
 
 /* use-api state reducer */
@@ -61,3 +62,18 @@ type ReducerAction<T> = { type: "success"; result: T } | { type: "error"; error:
 /* use-api options interfaces */
 export type Endpoint = "get-homeboard-students" | "save-roll" | "get-activities"
 export type LoadState = "unloaded" | "loading" | "loaded" | "error"
+
+const StudentContext = createContext<{ state: ReducerState<Person>; dispatch: React.Dispatch<ReducerAction<Person>> }>({ state: { data: undefined, loadState: "loading", error: undefined }, dispatch: () => {} })
+export function StudentsProvider({ children }: { children: React.ReactNode }) {
+  const [ state, dispatch ] = useApi<Person>({ url: "get-homeboard-students" })
+
+  return (
+    <StudentContext.Provider value={{ state, dispatch }}>
+      {children}
+    </StudentContext.Provider>
+  )
+}
+
+export function useStudents() {
+  return useContext(StudentContext);
+}
