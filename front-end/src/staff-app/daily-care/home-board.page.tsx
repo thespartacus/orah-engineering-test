@@ -18,6 +18,7 @@ export const HomeBoardPage: React.FC = () => {
   const [isFilterView, setIsFilterView] = useState(false)
   const [filterType, setFilterType] = useState<string>("unmark")
   const [state, dispatch, callApi] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [saveRollState, dispatchRollState, callApiSaveRoll] = useApi<{ students: Person[] }>({ url: "save-roll" })
   const studentData = state?.data?.students || [];
   const loadState = state?.loadState
   const [searchTerm, setSearchTerm, searchResults] = useSearch({ data: studentData || [] })
@@ -66,6 +67,19 @@ export const HomeBoardPage: React.FC = () => {
       setIsRollMode(false)
       isFilterView && setIsFilterView(false)
       isFilterView && setFilterType("unmark")
+
+      // save roll data
+      let saveRollStudents = {
+        student_roll_states: studentsData.map((s) => {
+          return {
+            student_id: s.id,
+            roll_state: s.roll_state || "unmark",
+          }
+        })
+      }
+      callApiSaveRoll(saveRollStudents || [])
+
+      // clear roll data
       let newStudents = [...studentsData]
       newStudents = newStudents.map((s) => {
         s.roll_state = "unmark"
